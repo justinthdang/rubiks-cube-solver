@@ -5,12 +5,12 @@ import kociemba as kc
 # hsv colour ranges
 colour_ranges = {
     #               lower            upper
-    "white"  : ([0, 0, 156],    [179, 101, 243]),
-    "yellow" : ([19, 121, 175], [39, 255, 255]),
-    "green"  : ([55, 137, 142], [75, 203, 255]),
-    "blue"   : ([97, 203, 146], [112, 255, 255]),
-    "red"    : ([0, 114, 118],  [7, 255, 255]),
-    "orange" : ([9, 160, 206],  [19, 255, 255]),
+    "white"  : ([0, 0, 173],    [179, 99, 241]),
+    "yellow" : ([19, 137, 179], [44, 234, 255]),
+    "green"  : ([51, 121, 153], [75, 203, 255]),
+    "blue"   : ([85, 132, 153], [110, 255, 246]),
+    "red"    : ([0, 149, 187],  [7, 212, 241]),
+    "orange" : ([10, 170, 210],  [19, 239, 255]),
 }
 
 # convert colour to corresponding face
@@ -43,8 +43,11 @@ def grid(frame, colour, thickness):
         for x in range(3):
             x_end, y_end = x_start + 100, y_start + 100
             cv2.rectangle(frame, (x_start, y_start), (x_end, y_end), colour, thickness)
+# detect center 40% of square to detect less noise
+            offset_x_start, offset_y_start = x_start + 30, y_start + 30
+            offset_x_end, offset_y_end = x_end - 30, y_end - 30
 # detects the colour in the roi and adds to list
-            roi = frame[y_start:y_end, x_start:x_end]
+            roi = frame[offset_y_start:offset_y_end, offset_x_start:offset_x_end]
             hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
             avg_hsv = np.mean(hsv_roi, axis=(0, 1)).astype(int)
             detected_colour = detect_colour(avg_hsv)
@@ -67,22 +70,23 @@ while cap.isOpened():
 # calls function to detect colours of each sticker
     current_face = grid(frame, (255, 255, 255), 5)
     cv2.imshow('Detect Faces', frame)
-# "f" captures current face and adds it to list, "q" is quit
+# "f" captures current face and adds it to list
     if key == ord("f"):
         faces.append(current_face)
+        print("Face detected")
+# "q" converts list to string, shows solution and ends program
     elif key == ord("q"):
+        converted = ""
+        for face in faces:
+            for colour in face:
+                converted += colour_to_face(colour)
+        solution = kc.solve(converted)
+        print(solution)
         break
 
 # turn off webcam
 cap.release()
 cv2.destroyAllWindows()
-
-# convert list to string in face representation and solves cube
-converted = ""
-for face in faces:
-    for colour in face:
-        converted += colour_to_face(colour)
-kc.solve(converted)
 
 '''
     kociemba library follows this order when capturing faces
