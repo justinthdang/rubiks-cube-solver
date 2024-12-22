@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import kociemba as kc
+import serial
 
 # hsv colour ranges
 colour_ranges = {
@@ -77,11 +78,31 @@ class VisionSystem:
                 cv2.putText(frame, detected_colour, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
                 x_start += 100
         return face_colours
+    
+def ControlCube():
+# initialize serial communication
+    def __init__(self, port, baud_rate):
+        self.s = serial.Serial(port, baud_rate)
+# sends command to move stepper
+    def stepper_command(self, steps):
+        self.s.write(b"S")
+        self.s.write(str(steps).encode("utf-8"))
+        self.s.flush()
+# sends command to move servo
+    def servo_command(self, angle):
+        self.s.write(b"F")
+        self.s.write(str(angle).encode("utf-8"))
+        self.s.flush()
+# send command to simulate key press
+    def key_command(self):
+        self.s.write(b"K")
+        self.s.flush()
 
 def main():
 # initialize objects and webcam
     cube = Cube()
     vision_system = VisionSystem(colour_ranges)
+    control_cube = ControlCube("COM4", 9600)
     cap = cv2.VideoCapture(0)
 # run webcam
     while cap.isOpened():
