@@ -1,8 +1,9 @@
+# import libraries
 import numpy as np
 import cv2
 
-# turn on webcam
-cap=cv2.VideoCapture(0)
+# open webcam
+cap = cv2.VideoCapture(0)
 def nothing(x):
     pass
 
@@ -15,8 +16,9 @@ cv2.createTrackbar("Upper H", "Trackbars", 179, 179, nothing)
 cv2.createTrackbar("Upper S", "Trackbars", 255, 255, nothing)
 cv2.createTrackbar("Upper V", "Trackbars", 255, 255, nothing)
 
-# webcam running
+# run webcam
 while True:
+# initialize frame for reading and key press
     ret,frame = cap.read()
     frame = cv2.resize(frame, (1024, 768))
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -38,6 +40,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
-# turn off webcam
+# turn off and close webcam
 cap.release()
 cv2.destroyAllWindows()
