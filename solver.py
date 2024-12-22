@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import kociemba as kc
+import serial
+
+s = serial.Serial("COM4", 9600)
 
 # hsv colour ranges
 colour_ranges = {
@@ -28,7 +31,7 @@ def colour_to_face(colour):
     elif colour == "orange":
         return "L"
 
-# returns the corresopnding colour that falls between the colour ranges
+# returns the corresponding colour that falls between the colour ranges
 def detect_colour(hsv_value):
     for colour, (lower, upper) in colour_ranges.items():
         if all(lower[i] <= hsv_value[i] <= upper[i] for i in range(3)):
@@ -43,7 +46,7 @@ def grid(frame, colour, thickness):
         for x in range(3):
             x_end, y_end = x_start + 100, y_start + 100
             cv2.rectangle(frame, (x_start, y_start), (x_end, y_end), colour, thickness)
-# detect center 40% of square to detect less noise
+# detect center 40% of square to avoid noise
             offset_x_start, offset_y_start = x_start + 30, y_start + 30
             offset_x_end, offset_y_end = x_end - 30, y_end - 30
 # detects the colour in the roi and adds to list
@@ -57,6 +60,15 @@ def grid(frame, colour, thickness):
             cv2.putText(frame, detected_colour, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
             x_start += 100
     return face_colours
+
+# find solution
+def find_solution(faces):
+    converted = ""
+    for face in faces:
+        for colour in face:
+            converted += colour_to_face(colour)
+    solution = kc.solve(converted)
+    print(solution)
 
 # turn on webcam
 cap = cv2.VideoCapture(0)
@@ -76,12 +88,7 @@ while cap.isOpened():
         print("Face detected")
 # "q" converts list to string, shows solution and ends program
     elif key == ord("q"):
-        converted = ""
-        for face in faces:
-            for colour in face:
-                converted += colour_to_face(colour)
-        solution = kc.solve(converted)
-        print(solution)
+        find_solution(faces)
         break
 
 # turn off webcam
