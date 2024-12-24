@@ -79,7 +79,7 @@ class VisionSystem:
                 x_start += 100
         return face_colours
     
-def ControlCube():
+class ControlCube():
 # initialize serial communication
     def __init__(self, port, baud_rate):
         self.s = serial.Serial(port, baud_rate)
@@ -97,6 +97,45 @@ def ControlCube():
     def key_command(self):
         self.s.write(b"K")
         self.s.flush()
+# rotates cube
+    def rotate(self, steps):
+        self.stepper_command(steps)
+# flips cube
+    def flip(self):
+        self.servo_command(30)
+        self.servo_command(-30)
+# grabs top of cube
+    def grab(self):
+        self.servo_command(60)
+# scans face
+    def scan(self):
+        self.key_command()
+# initial scanning of all faces: 90 degrees = 512 steps, 180 degrees = 1024 steps
+    def scan_faces(self):
+        # scan U face and set up for R face
+        self.scan()
+        self.rotate(1024)
+        self.flip()
+        self.rotate(-512)
+        # scan R face and set up for F face
+        self.scan()
+        self.rotate(-512)
+        # scan F face and set up for D face
+        self.scan()
+        self.rotate(1024)
+        self.flip()
+        self.rotate(1024)
+        # scan D face and set up for L face
+        self.scan()
+        self.flip()
+        self.rotate(-512)
+        # scan L face and set up for B face
+        self.scan()
+        self.rotate(-512)
+        # scan B face and return to U face
+        self.scan()
+        self.rotate(1024)
+        self.flip()
 
 def main():
 # initialize objects and webcam
