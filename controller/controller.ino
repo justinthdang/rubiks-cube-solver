@@ -18,26 +18,37 @@ void setup() {
 }
 
 void loop() {
-// read character from serial port if available
+  // read character from serial port if available
   if (Serial.available() > 0) {
     char command = Serial.read();
     switch (command) {
-// 'S' controls the stepper
-      case 'S': {
+      // 'A' controls the stepper
+      case 'A': {
         int steps = Serial.parseInt();
         myStepper.step(steps);
         break;
       }
-// 'F' controls the servo
-      case 'F': {
+      // 'B' controls the servo
+      case 'B': {
         int angle = Serial.parseInt();
         myServo.write(angle);
         break;
       }
-// 'K' controls simulates the keypress
-      case 'K': {
+      // 'C' simulates the keypress "f"
+      case 'C': {
         delay(1000);
         Keyboard.press("f");
+        delay(1000);
+        Keyboard.releaseAll();
+        break;
+      }
+      default: {
+        break;
+      }
+      // 'D' simulates the keypress "q"
+      case 'D': {
+        delay(1000);
+        Keyboard.press("q");
         delay(1000);
         Keyboard.releaseAll();
         break;
