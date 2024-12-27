@@ -43,7 +43,7 @@ class Cube:
         for face in self.faces:
             for colour in face:
                 converted += colour_to_face(colour)
-        solution = kc.solve(converted).split(" ")
+        solution = kc.solve(converted)
         return(solution)
 
 class VisionSystem:
@@ -113,6 +113,9 @@ class ControlCube():
 # grabs top of cube
     def grab(self):
         self.servo_command(60)
+# ungrabs top of cube
+    def ungrab(self):
+        self.servo_command(-60)
 # scans face
     def scan(self):
         self.key_command()
@@ -161,36 +164,92 @@ class SolveCube:
         elif move[0] == "L":
             self.control_cube.rotate_90_ccw()
             self.control_cube.flip()
+        else:
+            pass
 # turn face
     def turn_face(self, move):
         if move[1] == "'":
+            self.control_cube.grab()
             self.control_cube.rotate_90_ccw()
+            self.control_cube.ungrab()
         elif move[1] == "2":
+            self.control_cube.grab()
             self.control_cube.rotate_180()
+            self.control_cube.ungrab()
         else:
+            self.control_cube.grab()
             self.control_cube.rotate_90_cw()
+            self.control_cube.ungrab()
 # remap faces about U
-    def remap_faces(self, move):
-
-        if move[0] == "D":
-            
-        elif move[0] == "B":
-                
-        elif move[0] == "F":
-                
-        elif move[0] == "R":
-                
-        elif move[0] == "L":
-
-
+    def remap_faces(self, moves):
+        string_moves = " ".join(moves)
+        if string_moves[0] == "D":
+# U <=> D, F <=> B
+            string_moves.replace("U", "T")
+            string_moves.replace("D", "U")
+            string_moves.replace("T", "D")
+            string_moves.replace("F", "T")
+            string_moves.replace("B", "F")
+            string_moves.replace("T", "B")
+            new_moves = string_moves.split(" ")
+            return new_moves
+        elif string_moves[0] == "B":
+# U => F => D => B => U
+            string_moves.replace("U", "T")
+            string_moves.replace("F", "U")
+            string_moves.replace("D", "F")
+            string_moves.replace("B", "D")
+            string_moves.replace("T", "B")
+            new_moves = string_moves.split(" ")
+            return new_moves
+        elif string_moves[0] == "F":
+# R <=> L, U => B => D => F => U
+            string_moves.replace("R", "T")
+            string_moves.replace("L", "R")
+            string_moves.replace("T", "L")
+            string_moves.replace("U", "T")
+            string_moves.replace("B", "U")
+            string_moves.replace("D", "B")
+            string_moves.replace("F", "D")
+            string_moves.replace("T", "F")
+            new_moves = string_moves.split(" ")
+            return new_moves
+        elif string_moves[0] == "R":
+# U => R => F => U, D => L => B => D
+            string_moves.replace("U", "T")
+            string_moves.replace("R", "U")
+            string_moves.replace("F", "R")
+            string_moves.replace("T", "F")
+            string_moves.replace("D", "T")
+            string_moves.replace("L", "D")
+            string_moves.replace("B", "L")
+            string_moves.replace("T", "B")
+            new_moves = string_moves.split(" ")
+            return new_moves    
+        elif string_moves[0] == "L":
+# U => L => F => U, D => R => B => D
+            string_moves.replace("U", "T")
+            string_moves.replace("L", "U")
+            string_moves.replace("F", "L")
+            string_moves.replace("T", "F")
+            string_moves.replace("D", "T")
+            string_moves.replace("R", "D")
+            string_moves.replace("B", "R")
+            string_moves.replace("T", "B")
+            new_moves = string_moves.split(" ")
+            return new_moves
+        else:
+            new_moves = string_moves.split(" ")
+            return new_moves             
 # iterate through list of moves in solution
     def iterate(self):
-        while self.solution:
-            move = self.solution(0)
+        moves = self.solution.split(" ")
+        while moves:
+            move = moves[0]
             self.setup_moves(move)
             self.turn_face(move)
-            self.remap_faces(move)
-            self.solution.pop(0)
+            moves = self.remap_faces(moves)
+            moves.pop(0)
 
 def main():
 # initialize objects and webcam
