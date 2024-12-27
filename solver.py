@@ -97,9 +97,15 @@ class ControlCube():
     def key_command(self):
         self.s.write(b"K")
         self.s.flush()
-# rotates cube
-    def rotate(self, steps):
-        self.stepper_command(steps)
+# rotate cube/face 90 degrees clockwise
+    def rotate_90_cw(self):
+        self.stepper_command(512)
+# rotate cube/face 90 degrees counterclockwise
+    def rotate_90_ccw(self):
+        self.stepper_command(-512)
+# rotate cube/face 180 degrees
+    def rotate_180(self):
+        self.stepper_command(1024)
 # flips cube
     def flip(self):
         self.servo_command(30)
@@ -110,32 +116,81 @@ class ControlCube():
 # scans face
     def scan(self):
         self.key_command()
-# initial scanning of all faces: 90 degrees = 512 steps, 180 degrees = 1024 steps
+
+class SolveCube:
+    def __init__(self, control_cube, solution):
+        self.control_cube = control_cube
+        self.solution = solution
+# initial scanning of all faces
     def scan_faces(self):
         # scan U face and set up for R face
-        self.scan()
-        self.rotate(1024)
-        self.flip()
-        self.rotate(-512)
+        self.control_cube.scan()
+        self.control_cube.rotate_180()
+        self.control_cube.flip()
+        self.control_cube.rotate_90_ccw()
         # scan R face and set up for F face
-        self.scan()
-        self.rotate(-512)
+        self.control_cube.scan()
+        self.control_cube.rotate_90_ccw()
         # scan F face and set up for D face
-        self.scan()
-        self.rotate(1024)
-        self.flip()
-        self.rotate(1024)
+        self.control_cube.scan()
+        self.control_cube.rotate_180()
+        self.control_cube.flip()
+        self.control_cube.rotate_180()
         # scan D face and set up for L face
-        self.scan()
-        self.flip()
-        self.rotate(-512)
+        self.control_cube.scan()
+        self.control_cube.flip()
+        self.control_cube.rotate_90_ccw()
         # scan L face and set up for B face
-        self.scan()
-        self.rotate(-512)
-        # scan B face and return to U face
-        self.scan()
-        self.rotate(1024)
-        self.flip()
+        self.control_cube.scan()
+        self.control_cube.rotate_90_ccw()
+        # scan B face => U face is home (bottom) face
+        self.control_cube.scan()
+# optimal moves to get from the U face to another face
+    def setup_moves(self, move):
+        if move[0] == "D":
+            self.control_cube.flip()
+            self.control_cube.flip()
+        elif move[0] == "B":
+            self.control_cube.flip()
+        elif move[0] == "F":
+            self.control_cube.rotate_180()
+            self.control_cube.flip()
+        elif move[0] == "R":
+            self.control_cube.rotate_90_cw()
+            self.control_cube.flip()
+        elif move[0] == "L":
+            self.control_cube.rotate_90_ccw()
+            self.control_cube.flip()
+# turn face
+    def turn_face(self, move):
+        if move[1] == "'":
+            self.control_cube.rotate_90_ccw()
+        elif move[1] == "2":
+            self.control_cube.rotate_180()
+        else:
+            self.control_cube.rotate_90_cw()
+# remap faces about U
+    def remap_faces(self, move):
+
+        if move[0] == "D":
+            
+        elif move[0] == "B":
+                
+        elif move[0] == "F":
+                
+        elif move[0] == "R":
+                
+        elif move[0] == "L":
+
+
+# iterate through list of moves in solution
+    def iterate(self):
+        while self.solution:
+            move = self.solution(0)
+            self.setup_moves(move)
+            self.turn_face(move)
+            self.remap_faces(move)
+            self.solution.pop(0)
 
 def main():
 # initialize objects and webcam

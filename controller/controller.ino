@@ -1,11 +1,11 @@
-# import libraries
+// import libraries
 #include <Servo.h>
 #include <Stepper.h>
 #include <Keyboard.h>
 
 // initialize variables and objects for servo and stepper motors
 const int servoPin = 3;
-const int stepsPerRev = 2038;
+const int stepsPerRev = 2048;
 Servo myServo;
 Stepper myStepper(stepsPerRev, 8, 10, 9, 11);
 
